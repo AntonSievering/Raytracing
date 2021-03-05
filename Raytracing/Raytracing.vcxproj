@@ -36,6 +36,7 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="RaytracingShader.h" />
+    <ClInclude Include="Texture1D.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine.cpp" />

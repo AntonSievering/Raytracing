@@ -31,7 +31,6 @@ public:
 		vLights.push_back(PointLight({ 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f }, 5.0f));
 		vLights.push_back(PointLight({ 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f, 1.0f }, 5.0f));
 		
-		//vCircles.push_back(Circle({ 0.0f, 0.1f, 0.2f }, { 1.0f, 0.843f, 0.0f }, 0.075f, 0.75f));
 		for (int i = 0; i < 50; i++)
 		{
 			vCircles.push_back(Circle({ randomf(-1.0f, 1.0f), randomf(0.0f, 2.0f), randomf(-1.0f, 1.0f) }, { 1.0f, 0.843f, 0.0f }, randomf(0.025f, 0.1f), 1.0f));
@@ -51,6 +50,7 @@ public:
 			{  1.0f,  1.0f, }
 		};
 		m_vertBuffer = new Engine::VertexBufferColor(vertices, 6);
+
 
 		return true;
 	}
@@ -80,12 +80,6 @@ public:
 		if (GetKey(Engine::Key::ESCAPE).bPressed)
 			HideMouse(false);
 
-		Engine::vf3d lookAt = camera.getLookAt();
-		Engine::vf3d up = Engine::vf3d(0.0f, 1.0f, 0.0f);
-		Engine::vf3d sideWays = lookAt.cross(up).norm();
-		Engine::vf3d lookAtUp = sideWays.cross(lookAt).norm();
-
-		shader->bind();
 		shader->update(camera.getPosition(), camera.getLookAt(), camera.getFieldOfView(), vObjects, vLights, vCircles);
 		m_vertBuffer->bind();
 		glDrawArrays(GL_TRIANGLES, 0, 6);

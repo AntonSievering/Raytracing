@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "Engine/Shader.h"
+#include "Texture1D.h"
 
 class RaytracingShader
 {
@@ -11,6 +12,10 @@ private:
 	Engine::Shader *shader;
 	int m_nPositionLocation, m_nLookAtLocation, m_nSideWaysLocation, m_nLookAtUpLocation;
 	int m_nObjectsLocation, m_nLightsLocation, m_nFovLocation, m_nCirclesLocation;
+
+	Texture1D *pAABBPosTexture, *pAABBSizeTexture, *pAABBMaterial1Texture, *pAABBMaterial2Texture;
+	Texture1D *pCircleBoundsTexture, *pCircleMaterial1Texture, *pCircleMaterial2Texture;
+	Texture1D *pPointLightPos, *pPointLightColor;
 
 public:
 	RaytracingShader(const std::string &sFilename, const Engine::vf2d &screenSize) noexcept
@@ -26,8 +31,42 @@ public:
 		m_nObjectsLocation  = shader->getUniformLocation("u_nObjects");
 		m_nLightsLocation   = shader->getUniformLocation("u_nLights");
 		m_nCirclesLocation  = shader->getUniformLocation("u_nCircles");
-
 		glUniform2f(shader->getUniformLocation("u_screenSize"), screenSize.x, screenSize.y);
+
+		float emptyData[4 * nMaxEntities]{};
+		
+		// AABB
+		glActiveTexture(GL_TEXTURE0);
+		pAABBPosTexture = new Texture1D(nMaxEntities, emptyData);
+		glUniform1i(shader->getUniformLocation("u_AABBPos"), 0);
+		glActiveTexture(GL_TEXTURE1);
+		pAABBSizeTexture = new Texture1D(nMaxEntities, emptyData);
+		glUniform1i(shader->getUniformLocation("u_AABBSize"), 1);
+		glActiveTexture(GL_TEXTURE2);
+		pAABBMaterial1Texture = new Texture1D(nMaxEntities, emptyData);
+		glUniform1i(shader->getUniformLocation("u_AABBMaterial1"), 2);
+		glActiveTexture(GL_TEXTURE3);
+		pAABBMaterial2Texture = new Texture1D(nMaxEntities, emptyData);
+		glUniform1i(shader->getUniformLocation("u_AABBMaterial2"), 3);
+
+		// Circle
+		glActiveTexture(GL_TEXTURE4);
+		pCircleBoundsTexture = new Texture1D(nMaxEntities, emptyData);
+		glUniform1i(shader->getUniformLocation("u_CircleBounds"), 4);
+		glActiveTexture(GL_TEXTURE5);
+		pCircleMaterial1Texture = new Texture1D(nMaxEntities, emptyData);
+		glUniform1i(shader->getUniformLocation("u_CircleMaterial1"), 5);
+		glActiveTexture(GL_TEXTURE6);
+		pCircleMaterial2Texture = new Texture1D(nMaxEntities, emptyData);
+		glUniform1i(shader->getUniformLocation("u_CircleMaterial2"), 6);
+
+		// PointLight
+		glActiveTexture(GL_TEXTURE7);
+		pPointLightPos = new Texture1D(nMaxEntities, emptyData);
+		glUniform1i(shader->getUniformLocation("u_lightPos"), 7);
+		glActiveTexture(GL_TEXTURE8);
+		pPointLightColor = new Texture1D(nMaxEntities, emptyData);
+		glUniform1i(shader->getUniformLocation("u_lightColor"), 8);
 	}
 
 public:
@@ -57,43 +96,103 @@ public:
 
 		int nObjects = std::min((int)gameObjects.size(), nMaxEntities);
 		glUniform1i(m_nObjectsLocation, nObjects);
-
-		for (std::size_t i = 0; i < nObjects; i++)
-		{
-			const GameObject &object = gameObjects.at(i);
-			std::string sUniformNameBase = "u_objects[" + std::to_string(i) + "].";
-
-			glUniform3f(shader->getUniformLocation(sUniformNameBase + "pos"),   object.pos.x,   object.pos.y,   object.pos.z);
-			glUniform3f(shader->getUniformLocation(sUniformNameBase + "size"),  object.size.x,  object.size.y,  object.size.z);
-			glUniform3f(shader->getUniformLocation(sUniformNameBase + "color"), object.color.x, object.color.y, object.color.z);
-			glUniform1f(shader->getUniformLocation(sUniformNameBase + "fReflectiveIndex"), object.fReflectiveIndex);
-		}
-		
 		int nLights = std::min((int)lights.size(), nMaxEntities);
 		glUniform1i(m_nLightsLocation, nLights);
-		
-		for (std::size_t i = 0; i < nLights; i++)
-		{
-			const PointLight &light = lights.at(i);
-			std::string sUniformNameBase = "u_lights[" + std::to_string(i) + "].";
-
-			glUniform3f(shader->getUniformLocation(sUniformNameBase + "pos"),   light.pos.x,   light.pos.y,   light.pos.z);
-			glUniform3f(shader->getUniformLocation(sUniformNameBase + "color"), light.color.x, light.color.y, light.color.z);
-			glUniform1f(shader->getUniformLocation(sUniformNameBase + "fStrength"), light.fStrength);
-		}
-
 		int nCircles = std::min((int)circles.size(), nMaxEntities);
 		glUniform1i(m_nCirclesLocation, nCircles);
 
-		for (std::size_t i = 0; i < nCircles; i++)
+		float buffer[4 * nMaxEntities]{};
+		
+		for (int i = 0; i < nObjects; i++)
 		{
-			const Circle &circle = circles.at(i);
-			std::string sUniformNameBase = "u_circles[" + std::to_string(i) + "].";
-
-			glUniform3f(shader->getUniformLocation(sUniformNameBase + "middle"),  circle.pos.x,   circle.pos.y,   circle.pos.z);
-			glUniform3f(shader->getUniformLocation(sUniformNameBase + "color"),   circle.color.x, circle.color.y, circle.color.z);
-			glUniform1f(shader->getUniformLocation(sUniformNameBase + "fRadius"), circle.fRadius);
-			glUniform1f(shader->getUniformLocation(sUniformNameBase + "fReflectiveIndex"), circle.fReflectiveIndex);
+			buffer[4 * i + 0] = gameObjects.at(i).pos.x;
+			buffer[4 * i + 1] = gameObjects.at(i).pos.y;
+			buffer[4 * i + 2] = gameObjects.at(i).pos.z;
 		}
+		glActiveTexture(GL_TEXTURE0);
+		pAABBPosTexture->reupload(buffer);
+
+		memset(buffer, 0, sizeof(buffer));
+		for (int i = 0; i < nObjects; i++)
+		{
+			buffer[4 * i + 0] = gameObjects.at(i).size.x;
+			buffer[4 * i + 1] = gameObjects.at(i).size.y;
+			buffer[4 * i + 2] = gameObjects.at(i).size.z;
+		}
+		glActiveTexture(GL_TEXTURE1);
+		pAABBSizeTexture->reupload(buffer);
+
+		memset(buffer, 0, sizeof(buffer));
+		for (int i = 0; i < nObjects; i++)
+		{
+			buffer[4 * i + 0] = gameObjects.at(i).color.x;
+			buffer[4 * i + 1] = gameObjects.at(i).color.y;
+			buffer[4 * i + 2] = gameObjects.at(i).color.z;
+		}
+
+		glActiveTexture(GL_TEXTURE2);
+		pAABBMaterial1Texture->reupload(buffer);
+
+		memset(buffer, 0, sizeof(buffer));
+		for (int i = 0; i < nObjects; i++)
+		{
+			buffer[4 * i + 3] = gameObjects.at(i).fReflectiveIndex;
+		}
+		glActiveTexture(GL_TEXTURE3);
+		pAABBMaterial2Texture->reupload(buffer);
+
+
+
+		memset(buffer, 0, sizeof(buffer));
+		for (int i = 0; i < nCircles; i++)
+		{
+			buffer[4 * i + 0] = circles.at(i).pos.x;
+			buffer[4 * i + 1] = circles.at(i).pos.y;
+			buffer[4 * i + 2] = circles.at(i).pos.z;
+			buffer[4 * i + 3] = circles.at(i).fRadius;
+		}
+		glActiveTexture(GL_TEXTURE4);
+		pCircleBoundsTexture->reupload(buffer);
+
+		memset(buffer, 0, sizeof(buffer));
+		for (int i = 0; i < nCircles; i++)
+		{
+			buffer[4 * i + 0] = circles.at(i).color.x;
+			buffer[4 * i + 1] = circles.at(i).color.y;
+			buffer[4 * i + 2] = circles.at(i).color.z;
+		}
+		glActiveTexture(GL_TEXTURE5);
+		pCircleMaterial1Texture->reupload(buffer);
+
+		memset(buffer, 0, sizeof(buffer));
+		for (int i = 0; i < nCircles; i++)
+		{
+			buffer[4 * i + 3] = circles.at(i).fReflectiveIndex;
+		}
+		glActiveTexture(GL_TEXTURE6);
+		pCircleMaterial2Texture->reupload(buffer);
+
+
+
+		memset(buffer, 0, sizeof(buffer));
+		for (int i = 0; i < nLights; i++)
+		{
+			buffer[4 * i + 0] = lights.at(i).pos.x;
+			buffer[4 * i + 1] = lights.at(i).pos.y;
+			buffer[4 * i + 2] = lights.at(i).pos.z;
+		}
+		glActiveTexture(GL_TEXTURE7);
+		pPointLightPos->reupload(buffer);
+
+		memset(buffer, 0, sizeof(buffer));
+		for (int i = 0; i < nLights; i++)
+		{
+			buffer[4 * i + 0] = lights.at(i).color.x;
+			buffer[4 * i + 1] = lights.at(i).color.y;
+			buffer[4 * i + 2] = lights.at(i).color.z;
+			buffer[4 * i + 3] = lights.at(i).fStrength;
+		}
+		glActiveTexture(GL_TEXTURE8);
+		pPointLightColor->reupload(buffer);
 	}
 };

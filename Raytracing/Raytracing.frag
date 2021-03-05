@@ -1,9 +1,15 @@
 #version 330 core
 
+struct Material
+{
+	vec3 color;
+	float fAmbient, fDiffuse, fSpecular, fReflectiveIndex;
+};
+
 struct AABB
 {
-	vec3 pos, size, color;
-	float fReflectiveIndex;
+	vec3 pos, size;
+	Material material;
 };
 
 struct Light
@@ -14,8 +20,9 @@ struct Light
 
 struct Circle
 {
-	vec3 middle, color;
-	float fRadius, fReflectiveIndex;
+	vec3 middle;
+	float fRadius;
+	Material material;
 };
 
 struct RayHitResult
@@ -39,12 +46,72 @@ uniform vec3 u_pos;
 uniform vec3 u_lookAt;
 uniform vec3 u_sideWays;
 uniform vec3 u_lookAtUp;
-uniform AABB u_objects[100];
+
 uniform int u_nObjects;
-uniform Light u_lights[10];
 uniform int u_nLights;
-uniform Circle u_circles[100];
 uniform int u_nCircles;
+
+uniform sampler1D u_AABBPos;
+uniform sampler1D u_AABBSize;
+uniform sampler1D u_AABBMaterial1;
+uniform sampler1D u_AABBMaterial2;
+uniform sampler1D u_CircleBounds;
+uniform sampler1D u_CircleMaterial1;
+uniform sampler1D u_CircleMaterial2;
+uniform sampler1D u_lightPos;
+uniform sampler1D u_lightColor;
+
+AABB calculateAABB(int index)
+{
+	AABB aabb;
+	float fSample = float(index + 0.5f) * 0.01f;
+	
+	aabb.pos = texture(u_AABBPos, fSample).xyz;
+	aabb.size = texture(u_AABBSize, fSample).xyz;
+	
+	vec4 material1 = texture(u_AABBMaterial1, fSample);
+	vec4 material2 = texture(u_AABBMaterial2, fSample);
+	aabb.material.color = material1.xyz;
+	aabb.material.fAmbient = material2.x;
+	aabb.material.fDiffuse = material2.y;
+	aabb.material.fSpecular = material2.z;
+	aabb.material.fReflectiveIndex = material2.w;
+
+	return aabb;
+}
+
+Circle calculateCircle(int index)
+{
+	Circle circle;
+	float fSample = float(index + 0.5f) * 0.01f;
+	
+	vec4 bounds = texture(u_CircleBounds, fSample);
+	circle.middle = bounds.xyz;
+	circle.fRadius = bounds.w;
+
+	vec4 material1 = texture(u_CircleMaterial1, fSample);
+	vec4 material2 = texture(u_CircleMaterial2, fSample);
+	circle.material.color = material1.xyz;
+	circle.material.fAmbient = material2.x;
+	circle.material.fDiffuse = material2.y;
+	circle.material.fSpecular = material2.z;
+	circle.material.fReflectiveIndex = material2.w;
+
+	return circle;
+}
+
+Light calculateLight(int index)
+{
+	Light light;
+	float fSample = float(index + 0.5f) * 0.01f;
+
+	light.pos = texture(u_lightPos, fSample).xyz;
+	vec4 color = texture(u_lightColor, fSample);
+	light.color = color.xyz;
+	light.fStrength = color.w;
+
+	return light;
+}
 
 vec3 rotateVector(vec3 vector, vec3 normal, float fAngle)
 {
@@ -132,7 +199,7 @@ RayHitResult getNearestGameObject(vec3 origin, vec3 dir, int ignoreId = -1, int 
 	{
 		if (!(i == ignoreId && type == 0))
 		{
-			CollisionResult result = AABBCollision(u_objects[i], origin, dir);
+			CollisionResult result = AABBCollision(calculateAABB(i), origin, dir);
 		
 			if (result.bHit && result.dist < fNearest)
 			{
@@ -149,7 +216,7 @@ RayHitResult getNearestGameObject(vec3 origin, vec3 dir, int ignoreId = -1, int 
 	{
 		if (!(i == ignoreId && type == 1))
 		{
-			CollisionResult result = CircleC(u_circles[i], origin, dir);
+			CollisionResult result = CircleC(calculateCircle(i), origin, dir);
 
 			if (result.bHit && result.dist < fNearest)
 			{
@@ -180,7 +247,7 @@ float rayHitScene(vec3 origin, vec3 dir, int ignoreId = -1, int type = 0)
 	{
 		if (!(i == ignoreId && type == 0))
 		{
-			CollisionResult result = AABBCollision(u_objects[i], origin, dir);
+			CollisionResult result = AABBCollision(calculateAABB(i), origin, dir);
 
 			if (result.bHit && result.dist < fNearest)
 				fNearest = result.dist;
@@ -192,7 +259,7 @@ float rayHitScene(vec3 origin, vec3 dir, int ignoreId = -1, int type = 0)
 	{
 		if (!(i == ignoreId && type == 1))
 		{
-			CollisionResult result = CircleC(u_circles[i], origin, dir);
+			CollisionResult result = CircleC(calculateCircle(i), origin, dir);
 
 			if (result.bHit && result.dist < fNearest)
 				fNearest = result.dist;
@@ -215,16 +282,22 @@ float calculateLightBrightness(Light light, float dist)
 
 vec3 calculateSurfaceColor(int index, int type, vec3 cp, vec3 cn)
 {
-	vec3 blockColor = u_objects[index].color;
-	if (type == 1)
-		blockColor = u_circles[index].color;
+	vec3 blockColor = vec3(0.0f);
+	if (type == 0)
+	{
+		blockColor = calculateAABB(index).material.color;
+	}
+	else if (type == 1)
+	{
+		blockColor = calculateCircle(index).material.color;
+	}
 
 	vec3 ambientColor = blockColor * 0.1f;
 	vec3 diffuseColor = vec3(0.0f), specularColor = vec3(0.0f);
 		
 	for (int i = 0; i < u_nLights; i++)
 	{
-		Light light     = u_lights[i];
+		Light light     = calculateLight(i);
 		vec3 lightPos   = light.pos;
 		vec3 lightDir   = normalize(lightPos - cp);
 
@@ -273,11 +346,11 @@ vec3 calculateColorIterative(vec3 cpos, vec3 lookAt, int bounces)
 			float reflectiveIndex = 0.0f;
 			if (result.type == 0)
 			{
-				reflectiveIndex = u_objects[result.index].fReflectiveIndex;
+				reflectiveIndex = calculateAABB(result.index).material.fReflectiveIndex;
 			}
 			else if (result.type == 1)
 			{
-				reflectiveIndex = u_circles[result.index].fReflectiveIndex;
+				reflectiveIndex = calculateCircle(result.index).material.fReflectiveIndex;
 			}
 
 			r *= reflectiveIndex;
