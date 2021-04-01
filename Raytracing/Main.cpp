@@ -28,8 +28,8 @@ public:
 		vObjects.push_back(GameObject({    0.0f,   0.0f,    0.0f }, {   0.1f,  0.1f,   0.1f }, { 1.0f, 1.0f, 1.0f }, 0.5f));
 		vObjects.push_back(GameObject({ -100.0f, -0.01f, -100.0f }, { 200.0f, 0.01f, 200.0f }, { 1.0f, 1.0f, 1.0f }, 0.0f));
 		
-		vLights.push_back(PointLight({ 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f }, 5.0f));
-		vLights.push_back(PointLight({ 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f, 1.0f }, 5.0f));
+		vLights.push_back(PointLight({ 0.0f, 1.0f, 1.0f }, { 1.0f, 0.25f, 0.0f }, 5.0f));
+		vLights.push_back(PointLight({ 1.0f, 1.0f, 1.0f }, { 0.0f, 0.25f, 1.0f }, 5.0f));
 		
 		for (int i = 0; i < 50; i++)
 		{
@@ -50,7 +50,6 @@ public:
 			{  1.0f,  1.0f, }
 		};
 		m_vertBuffer = new Engine::VertexBufferColor(vertices, 6);
-
 
 		return true;
 	}
@@ -83,6 +82,8 @@ public:
 		shader->update(camera.getPosition(), camera.getLookAt(), camera.getFieldOfView(), vObjects, vLights, vCircles);
 		m_vertBuffer->bind();
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glFlush();
 
 		return true;
 	}

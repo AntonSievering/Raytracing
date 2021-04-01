@@ -187,7 +187,7 @@ CollisionResult CircleC(Circle object, vec3 origin, vec3 dir)
 	return result;
 }
 
-RayHitResult getNearestGameObject(vec3 origin, vec3 dir, int ignoreId = -1, int type = 0)
+RayHitResult getNearestGameObject(vec3 origin, vec3 dir, int ignoreId, int type)
 {
 	dir = normalize(dir);
 	float fNearest = 1e30f;
@@ -238,7 +238,7 @@ RayHitResult getNearestGameObject(vec3 origin, vec3 dir, int ignoreId = -1, int 
 	return result;
 }
 
-float rayHitScene(vec3 origin, vec3 dir, int ignoreId = -1, int type = 0)
+float rayHitScene(vec3 origin, vec3 dir, int ignoreId, int type)
 {
 	float fNearest = 1e30f;
 
@@ -269,9 +269,9 @@ float rayHitScene(vec3 origin, vec3 dir, int ignoreId = -1, int type = 0)
 	return fNearest;
 }
 
-bool rayIsBlocked(vec3 origin, vec3 dir, int ignoreId)
+bool rayIsBlocked(vec3 origin, vec3 dir, int ignoreId, int ignoreType)
 {
-	return rayHitScene(origin, normalize(dir), ignoreId) <= 1.0f;
+	return rayHitScene(origin, normalize(dir), ignoreId, ignoreType) <= 1.0f;
 }
 
 float calculateLightBrightness(Light light, float dist)
@@ -301,7 +301,7 @@ vec3 calculateSurfaceColor(int index, int type, vec3 cp, vec3 cn)
 		vec3 lightPos   = light.pos;
 		vec3 lightDir   = normalize(lightPos - cp);
 
-		if (!rayIsBlocked(cp, lightDir, index))
+		if (!rayIsBlocked(cp, lightDir, index, type))
 		{
 			vec3 lightColor = light.color;
 			float fBrightness = calculateLightBrightness(light, length(lightPos - cp));
