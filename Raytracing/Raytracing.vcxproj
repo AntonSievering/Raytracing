@@ -62,26 +62,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -105,23 +105,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Anton Sievering\source\repos\Raytracing\deps\SDL2-2.0.12\include;C:\Users\Anton Sievering\source\repos\Raytracing\deps;C:\Users\Anton Sievering\source\repos\Raytracing\deps\glew-2.1.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Anton Sievering\source\repos\Raytracing\deps\SDL2-2.0.12\lib\x86;C:\Users\Anton Sievering\source\repos\Raytracing\deps\glew-2.1.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\libs\stb;C:\libs\SDL2-2.0.14\include;C:\libs\glm\include;C:\libs\glew-2.1.0\include</IncludePath>
+    <LibraryPath>C:\libs\glew-2.1.0\lib\Release\Win32;C:\libs\SDL2-2.0.14\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Anton Sievering\source\repos\Raytracing\deps\SDL2-2.0.12\include;C:\Users\Anton Sievering\source\repos\Raytracing\deps;C:\Users\Anton Sievering\source\repos\Raytracing\deps\glew-2.1.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Anton Sievering\source\repos\Raytracing\deps\SDL2-2.0.12\lib\x86;C:\Users\Anton Sievering\source\repos\Raytracing\deps\glew-2.1.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\libs\stb;C:\libs\SDL2-2.0.14\include;C:\libs\glm\include;C:\libs\glew-2.1.0\include</IncludePath>
+    <LibraryPath>C:\libs\glew-2.1.0\lib\Release\Win32;C:\libs\SDL2-2.0.14\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Anton Sievering\source\repos\Raytracing\deps\SDL2-2.0.12\include;C:\Users\Anton Sievering\source\repos\Raytracing\deps;C:\Users\Anton Sievering\source\repos\Raytracing\deps\glew-2.1.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Anton Sievering\source\repos\Raytracing\deps\SDL2-2.0.12\lib\x64;C:\Users\Anton Sievering\source\repos\Raytracing\deps\glew-2.1.0\lib\Release\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\libs\stb;C:\libs\SDL2-2.0.14\include;C:\libs\glm\include;C:\libs\glew-2.1.0\include</IncludePath>
+    <LibraryPath>C:\libs\glew-2.1.0\lib\Release\x64;C:\libs\SDL2-2.0.14\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Anton Sievering\source\repos\Raytracing\deps\SDL2-2.0.12\include;C:\Users\Anton Sievering\source\repos\Raytracing\deps;C:\Users\Anton Sievering\source\repos\Raytracing\deps\glew-2.1.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Anton Sievering\source\repos\Raytracing\deps\SDL2-2.0.12\lib\x64;C:\Users\Anton Sievering\source\repos\Raytracing\deps\glew-2.1.0\lib\Release\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\libs\stb;C:\libs\SDL2-2.0.14\include;C:\libs\glm\include;C:\libs\glew-2.1.0\include</IncludePath>
+    <LibraryPath>C:\libs\glew-2.1.0\lib\Release\x64;C:\libs\SDL2-2.0.14\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

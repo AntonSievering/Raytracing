@@ -27,14 +27,23 @@ public:
 		vObjects.push_back(GameObject({    1.0f,   0.0f,    0.0f }, {   0.1f,  0.1f,   0.1f }, { 1.0f, 1.0f, 1.0f }, 0.5f));
 		vObjects.push_back(GameObject({    0.0f,   0.0f,    0.0f }, {   0.1f,  0.1f,   0.1f }, { 1.0f, 1.0f, 1.0f }, 0.5f));
 		vObjects.push_back(GameObject({ -100.0f, -0.01f, -100.0f }, { 200.0f, 0.01f, 200.0f }, { 1.0f, 1.0f, 1.0f }, 0.0f));
-		
+	
+		for (int i = 0; i < 25; i++)
+		{
+			Engine::vf3d vec, colour;
+			vec.x = 10.0f * randomf();
+			vec.y = 10.0f * randomf() + 1.0f;
+			vec.z = 10.0f * randomf();
+			colour.x = 1.0f;
+			colour.y = 0.8431f;
+			colour.z = 0.0f;
+			float radius = randomf();
+
+			vCircles.push_back(Circle({ vec, colour, radius, 0.8f }));
+		}
+
 		vLights.push_back(PointLight({ 0.0f, 1.0f, 1.0f }, { 1.0f, 0.25f, 0.0f }, 5.0f));
 		vLights.push_back(PointLight({ 1.0f, 1.0f, 1.0f }, { 0.0f, 0.25f, 1.0f }, 5.0f));
-		
-		for (int i = 0; i < 50; i++)
-		{
-			vCircles.push_back(Circle({ randomf(-1.0f, 1.0f), randomf(0.0f, 2.0f), randomf(-1.0f, 1.0f) }, { 1.0f, 0.843f, 0.0f }, randomf(0.025f, 0.1f), 1.0f));
-		}
 		
 		camera.setPosition(glm::vec3(0.0f, 0.2f, 0.0f));
 
